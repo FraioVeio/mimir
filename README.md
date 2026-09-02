@@ -10,21 +10,29 @@ Mimir is a command-line tool designed to enhance the traditional `sleep` command
 
 ## How to Use
 
-To put your computer to sleep with Mimir and play sound at a variable speed, use the following command:
+Mimir's arguments mirror the standard `sleep` command, with an added `inf` mode:
 
 ```bash
-mimir <seconds | inf> [standard_deviation]
+mimir NUMBER[SUFFIX]...
+mimir inf
 ```
 
-- `<seconds>`: Specify the number of seconds for the sleep duration.
-- `inf`: Enter sleep mode indefinitely until manually interrupted.
-- `[standard_deviation]`: (Optional) Specify the standard deviation for the speed variation of the sound playback. If not provided, the default value of 0.1 will be used.
+- `NUMBER[SUFFIX]`: A duration, as an integer or floating-point number. `SUFFIX` may be `s`, `m`, `h`, or `d`, for seconds, minutes, hours, or days (default `s`). With multiple arguments, mimir pauses for the sum of their values, just like `sleep`.
+- `inf`: Sleep indefinitely until manually interrupted (e.g. with Ctrl+C). Cannot be combined with other arguments.
+- `--help`: Display usage information and exit.
+- `--version`: Display the version and exit.
+
+The speed variation of the sound playback uses a fixed standard deviation and is not configurable via arguments.
 
 Examples:
 
-- `mimir 60`: Puts the computer to sleep for 60 seconds with the default speed variation.
-- `mimir 60 0.2`: Puts the computer to sleep for 60 seconds with a standard deviation of 0.2 for the speed variation.
-- `mimir inf`: Puts the computer to sleep indefinitely with the default speed variation.
+- `mimir 60`: Puts the computer to sleep for 60 seconds.
+- `mimir 1m 30s`: Puts the computer to sleep for 90 seconds.
+- `mimir inf`: Puts the computer to sleep indefinitely, until interrupted.
+
+### Environment variables
+
+- `MIMIR_AUDIO_DIR`: Overrides the directory Mimir looks in for `esleep1.wav`/`esleep2.wav`. Useful for running Mimir straight from a checkout, or for supplying your own sounds.
 
 ## Dependencies
 
@@ -32,16 +40,21 @@ Before using Mimir, ensure that you have the following dependencies installed on
 
 1. **Bash**: Mimir is a Bash script and requires a Unix-like environment to run. Most Linux distributions and macOS come with Bash pre-installed. For Windows, you can use WSL (Windows Subsystem for Linux).
 
-2. **sox**: The 'sox' command is used for audio playback manipulation. It can be installed on most Unix-like operating systems. 
+2. **sox**: The 'sox' command is used for audio playback manipulation. It can be installed on most Unix-like operating systems.
 
    - On Ubuntu/Debian: `sudo apt-get install sox`
    - On Arch: `sudo pacman -S sox`
    - On Fedora: `sudo dnf install sox`
    - On macOS (using Homebrew): `brew install sox`
+   - On NixOS/Nix: `nix-shell -p sox` (or use the provided `shell.nix`, see below)
 
-3. **bc**: The 'bc' command is a calculator used within the script. It is typically pre-installed on most Unix-like systems. If it's not installed, you can install it using your system's package manager.
+3. **awk**: Used for the random speed/delay calculations. Pre-installed on virtually every Unix-like system.
 
-5. **Hardware Compatibility**: The script is designed to run on systems with audio playback capability. Ensure your hardware and drivers support audio playback.
+4. **Hardware Compatibility**: The script is designed to run on systems with audio playback capability. Ensure your hardware and drivers support audio playback.
+
+### Nix development shell
+
+If you have Nix installed, `nix-shell` in the repository root drops you into a shell with all runtime dependencies (`bash`, `sox`, `gawk`) plus `shellcheck`, and points `MIMIR_AUDIO_DIR` at the sounds in this checkout so you can run `bash mimir.sh ...` directly without installing anything system-wide.
 
 ## Installation
 

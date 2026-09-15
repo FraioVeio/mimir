@@ -1,0 +1,38 @@
+name: Snap
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build snap
+        uses: snapcore/action-build@v1
+        id: build
+
+      - name: Smoke test
+        run: |
+          sudo snap install --dangerous "${{ steps.build.outputs.snap }}"
+          mimir-sleep.mimir 1
+
+      - name: Upload snap artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mimir-snap
+          path: ${{ steps.build.outputs.snap }}
+
+      - name: Publish to edge
+        if: github.event_name != 'pull_request'
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: edge

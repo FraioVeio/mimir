@@ -1,0 +1,30 @@
+name: mimir-sleep
+version: '2.0.0'
+summary: Enhanced sleep command with sound effects
+description: |
+  Mimir replaces the traditional `sleep` command with an enriched audio
+  experience: it plays randomized, pitch-varied sleep sounds while your
+  terminal waits, for a set duration or indefinitely (`mimir inf`).
+  Arguments mirror coreutils' `sleep` (NUMBER[SUFFIX]...).
+
+grade: stable
+confinement: strict
+base: core24
+
+apps:
+  mimir:
+    command: bin/mimir
+    plugs:
+      - audio-playback
+
+parts:
+  mimir:
+    plugin: nil
+    source: .
+    override-build: |
+      install -Dm755 mimir.sh "$CRAFT_PART_INSTALL/bin/mimir"
+      install -Dm644 mimir/esleep1.wav "$CRAFT_PART_INSTALL/share/mimir/esleep1.wav"
+      install -Dm644 mimir/esleep2.wav "$CRAFT_PART_INSTALL/share/mimir/esleep2.wav"
+    stage-packages:
+      - sox
+      - gawk

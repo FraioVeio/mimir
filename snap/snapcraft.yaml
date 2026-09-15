@@ -21,14 +21,33 @@ apps:
     plugs:
       - audio-playback
 
+# sox, alsa-lib and its pulseaudio plugin all load further plugins/config via
+# hardcoded absolute host paths at runtime; bind-mount the real (snap-relative)
+# content over those paths inside this snap's private mount namespace.
+layout:
+  /usr/lib/x86_64-linux-gnu/sox:
+    bind: $SNAP/usr/lib/x86_64-linux-gnu/sox
+  /usr/lib/x86_64-linux-gnu/pulseaudio:
+    bind: $SNAP/usr/lib/x86_64-linux-gnu/pulseaudio
+  /usr/share/alsa:
+    bind: $SNAP/usr/share/alsa
+  /etc/asound.conf:
+    bind-file: $SNAP/etc/asound.conf
+  /etc/alsa/conf.d:
+    bind: $SNAP/etc/alsa/conf.d
+
 parts:
   mimir:
     plugin: nil
     source: .
     override-build: |
-      install -Dm755 mimir.sh "$CRAFT_PART_INSTALL/bin/mimir"
+      install -Dm755 mimir.sh "$CRAFT_PART_INSTALL/bin/mimir-core"
+      install -Dm755 snap/local/wrapper.sh "$CRAFT_PART_INSTALL/bin/mimir"
       install -Dm644 mimir/esleep1.wav "$CRAFT_PART_INSTALL/share/mimir/esleep1.wav"
       install -Dm644 mimir/esleep2.wav "$CRAFT_PART_INSTALL/share/mimir/esleep2.wav"
+      install -Dm644 snap/local/asound.conf "$CRAFT_PART_INSTALL/etc/asound.conf"
+      mkdir -p "$CRAFT_PART_INSTALL/etc/alsa/conf.d"
     stage-packages:
       - sox
       - gawk
+      - libasound2-plugins

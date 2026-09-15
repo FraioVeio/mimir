@@ -58,7 +58,13 @@ If you have Nix installed, `nix-shell` in the repository root drops you into a s
 
 ## Installation
 
-To install mimir, follow these steps:
+### Package managers
+
+- **NixOS/Nix**: `nix-env -iA nixpkgs.mimir-sleep` (or add `mimir-sleep` to `environment.systemPackages`)
+- **Arch Linux (AUR)**: `yay -S mimir-sleep` (or your AUR helper of choice)
+- **Snap**: `sudo snap install mimir-sleep`, then run as `mimir-sleep` (or `mimir-sleep.mimir`). If you'd rather type `mimir`, set up a local alias yourself: `sudo snap alias mimir-sleep mimir`
+
+### From source
 
 1. Clone the repository or download the source code.
 2. Navigate to the source directory.

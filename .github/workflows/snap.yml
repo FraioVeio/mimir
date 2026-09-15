@@ -28,11 +28,21 @@ jobs:
           name: mimir-snap
           path: ${{ steps.build.outputs.snap }}
 
-      - name: Publish to edge
+      - name: Determine release channel
+        if: github.event_name != 'pull_request'
+        id: channel
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "name=stable" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=edge" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish
         if: github.event_name != 'pull_request'
         uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
         with:
           snap: ${{ steps.build.outputs.snap }}
-          release: edge
+          release: ${{ steps.channel.outputs.name }}

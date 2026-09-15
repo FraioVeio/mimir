@@ -12,6 +12,10 @@ confinement: strict
 base: core24
 
 apps:
+  mimir-sleep:
+    command: bin/mimir
+    plugs:
+      - audio-playback
   mimir:
     command: bin/mimir
     plugs:
